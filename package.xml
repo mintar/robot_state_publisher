@@ -40,7 +40,14 @@
   <run_depend>roscpp</run_depend>
   <run_depend>rostime</run_depend>
   <run_depend>sensor_msgs</run_depend>
+<<<<<<< HEAD
   <run_depend>tf</run_depend>
   <run_depend>tf2_ros</run_depend>
   <run_depend>tf2_kdl</run_depend>
+=======
+  <run_depend>tf</run_depend> 
+  <run_depend>tf_conversions</run_depend> 
+
+  <build_depend>rostest</build_depend>
+>>>>>>> b4c3578b2c05b13a82385ec09bbf7c8d8054966c
 </package>
