@@ -92,10 +92,10 @@ TEST_F(TestPublisher, test)
     ros::Duration(0.1).sleep();
   }
 
-  ASSERT_TRUE(buffer.canTransform("link1", "link2", Time()));
-  ASSERT_FALSE(buffer.canTransform("base_link", "wim_link", Time()));
+  ASSERT_TRUE(buffer.canTransform("link1", "link2", Time(0)));
+  ASSERT_FALSE(buffer.canTransform("base_link", "wim_link", Time(0)));
 
-  geometry_msgs::TransformStamped t = buffer.lookupTransform("link1", "link2", Time());
+  geometry_msgs::TransformStamped t = buffer.lookupTransform("link1", "link2", Time(0));
   EXPECT_NEAR(t.transform.translation.x, 5.0, EPS);
   EXPECT_NEAR(t.transform.translation.y, 0.0, EPS);
   EXPECT_NEAR(t.transform.translation.z, 0.0, EPS);
@@ -109,7 +109,7 @@ TEST_F(TestPublisher, test)
 int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "test_robot_state_publisher");
+  ros::init(argc, argv, "test_two_links_moving_joint");
   ros::NodeHandle node;
   boost::thread ros_thread(boost::bind(&ros::spin));
 

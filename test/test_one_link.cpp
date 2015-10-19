@@ -43,6 +43,7 @@
 #include <kdl_parser/kdl_parser.hpp>
 #include "robot_state_publisher/joint_state_listener.h"
 
+//#include "test_publisher_fixture.hpp"
 
 using namespace ros;
 using namespace tf2_ros;
@@ -70,9 +71,6 @@ protected:
 };
 
 
-
-
-
 TEST_F(TestPublisher, test)
 {
   ROS_INFO("Creating tf listener");
@@ -89,6 +87,8 @@ TEST_F(TestPublisher, test)
     ros::Duration(0.1).sleep();
   }
 
+  ASSERT_TRUE(buffer.canTransform("link1", "link1", Time()));
+
   SUCCEED();
 }
 
@@ -98,7 +98,7 @@ TEST_F(TestPublisher, test)
 int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "test_robot_state_publisher");
+  ros::init(argc, argv, "test_one_link");
   ros::NodeHandle node;
   boost::thread ros_thread(boost::bind(&ros::spin));
 

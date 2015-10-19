@@ -101,7 +101,7 @@ TEST_F(TestPublisher, test)
 int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "test_robot_state_publisher");
+  ros::init(argc, argv, "test_two_links_fixed_joint");
   ros::NodeHandle node;
   boost::thread ros_thread(boost::bind(&ros::spin));
 
