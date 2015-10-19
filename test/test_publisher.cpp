@@ -37,7 +37,8 @@
 #include <string>
 #include <gtest/gtest.h>
 #include <ros/ros.h>
-#include <tf/transform_listener.h>
+#include <tf2_ros/transform_listener.h>
+#include <geometry_msgs/TransformStamped.h>
 #include <boost/thread/thread.hpp>
 #include <urdf/model.h>
 #include <kdl_parser/kdl_parser.hpp>
@@ -45,7 +46,7 @@
 
 
 using namespace ros;
-using namespace tf;
+using namespace tf2_ros;
 using namespace robot_state_publisher;
 
 
@@ -76,28 +77,28 @@ protected:
 TEST_F(TestPublisher, test)
 {
   ROS_INFO("Creating tf listener");
-  TransformListener tf;
+  Buffer buffer;
+  TransformListener tf(buffer);
 
   ROS_INFO("Waiting for bag to complete");
   Duration(15.0).sleep();
 
-  ASSERT_TRUE(tf.canTransform("base_link", "torso_lift_link", Time()));
-  ASSERT_TRUE(tf.canTransform("base_link", "r_gripper_palm_link", Time()));
-  ASSERT_TRUE(tf.canTransform("base_link", "r_gripper_palm_link", Time()));
-  ASSERT_TRUE(tf.canTransform("l_gripper_palm_link", "r_gripper_palm_link", Time()));
-  ASSERT_TRUE(tf.canTransform("l_gripper_palm_link", "fl_caster_r_wheel_link", Time()));
-  ASSERT_FALSE(tf.canTransform("base_link", "wim_link", Time()));
+  ASSERT_TRUE(buffer.canTransform("base_link", "torso_lift_link", Time()));
+  ASSERT_TRUE(buffer.canTransform("base_link", "r_gripper_palm_link", Time()));
+  ASSERT_TRUE(buffer.canTransform("base_link", "r_gripper_palm_link", Time()));
+  ASSERT_TRUE(buffer.canTransform("l_gripper_palm_link", "r_gripper_palm_link", Time()));
+  ASSERT_TRUE(buffer.canTransform("l_gripper_palm_link", "fl_caster_r_wheel_link", Time()));
+  ASSERT_FALSE(buffer.canTransform("base_link", "wim_link", Time()));
 
-  tf::StampedTransform t;
-  tf.lookupTransform("base_link", "r_gripper_palm_link",Time(), t );
-  EXPECT_NEAR(t.getOrigin().x(), 0.769198, EPS);
-  EXPECT_NEAR(t.getOrigin().y(), -0.188800, EPS);
-  EXPECT_NEAR(t.getOrigin().z(), 0.764914, EPS);
-  
-  tf.lookupTransform("l_gripper_palm_link", "r_gripper_palm_link",Time(), t );
-  EXPECT_NEAR(t.getOrigin().x(), 0.000384222, EPS);
-  EXPECT_NEAR(t.getOrigin().y(), -0.376021, EPS);
-  EXPECT_NEAR(t.getOrigin().z(), -1.0858e-05, EPS);
+  geometry_msgs::TransformStamped t = buffer.lookupTransform("base_link", "r_gripper_palm_link", Time());
+  EXPECT_NEAR(t.transform.translation.x, 0.769198, EPS);
+  EXPECT_NEAR(t.transform.translation.y, -0.188800, EPS);
+  EXPECT_NEAR(t.transform.translation.z, 0.764914, EPS);
+
+  t = buffer.lookupTransform("l_gripper_palm_link", "r_gripper_palm_link", Time());
+  EXPECT_NEAR(t.transform.translation.x, 0.000384222, EPS);
+  EXPECT_NEAR(t.transform.translation.y, -0.376021, EPS);
+  EXPECT_NEAR(t.transform.translation.z, -1.0858e-05, EPS);
 
   SUCCEED();
 }

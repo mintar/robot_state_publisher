@@ -37,7 +37,8 @@
 #include <string>
 #include <gtest/gtest.h>
 #include <ros/ros.h>
-#include <tf/transform_listener.h>
+#include <tf2_ros/transform_listener.h>
+#include <geometry_msgs/TransformStamped.h>
 #include <boost/thread/thread.hpp>
 #include <urdf/model.h>
 #include <kdl_parser/kdl_parser.hpp>
@@ -45,7 +46,7 @@
 
 
 using namespace ros;
-using namespace tf;
+using namespace tf2_ros;
 using namespace robot_state_publisher;
 
 
@@ -76,20 +77,20 @@ protected:
 TEST_F(TestPublisher, test)
 {
   ROS_INFO("Creating tf listener");
-  TransformListener tf;
+  Buffer buffer;
+  TransformListener tf(buffer);
 
   // don't need to publish joint state for tree with only fixed joints
   // wait for tf data to come in
   ros::Duration(10.0).sleep();
 
-  ASSERT_TRUE(tf.canTransform("link1", "link2", Time()));
-  ASSERT_FALSE(tf.canTransform("base_link", "wim_link", Time()));
+  ASSERT_TRUE(buffer.canTransform("link1", "link2", Time()));
+  ASSERT_FALSE(buffer.canTransform("base_link", "wim_link", Time()));
 
-  tf::StampedTransform t;
-  tf.lookupTransform("link1", "link2",Time(), t );
-  EXPECT_NEAR(t.getOrigin().x(), 5.0, EPS);
-  EXPECT_NEAR(t.getOrigin().y(), 0.0, EPS);
-  EXPECT_NEAR(t.getOrigin().z(), 0.0, EPS);
+  geometry_msgs::TransformStamped t = buffer.lookupTransform("link1", "link2", Time());
+  EXPECT_NEAR(t.transform.translation.x, 5.0, EPS);
+  EXPECT_NEAR(t.transform.translation.y, 0.0, EPS);
+  EXPECT_NEAR(t.transform.translation.z, 0.0, EPS);
 
   SUCCEED();
 }

@@ -37,7 +37,7 @@
 #include <string>
 #include <gtest/gtest.h>
 #include <ros/ros.h>
-#include <tf/transform_listener.h>
+#include <tf2_ros/transform_listener.h>
 #include <boost/thread/thread.hpp>
 #include <urdf/model.h>
 #include <kdl_parser/kdl_parser.hpp>
@@ -45,7 +45,7 @@
 
 
 using namespace ros;
-using namespace tf;
+using namespace tf2_ros;
 using namespace robot_state_publisher;
 
 
@@ -76,7 +76,8 @@ protected:
 TEST_F(TestPublisher, test)
 {
   ROS_INFO("Creating tf listener");
-  TransformListener tf;
+  Buffer buffer;
+  TransformListener tf(buffer);
 
   ROS_INFO("Publishing joint state to robot state publisher");
   ros::NodeHandle n;
