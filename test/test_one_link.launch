@@ -1,6 +1,10 @@
 <launch>
-  <node pkg="robot_state_publisher" name="one_link_state_pub" type="robot_state_publisher" />
-  <param name="robot_description" textfile="$(find robot_state_publisher)/test/one_link.urdf" />
+  <param name="one_link/robot_description" textfile="$(find robot_state_publisher)/test/one_link.urdf" />
+
+  <node pkg="robot_state_publisher" name="one_link_state_pub" type="robot_state_publisher">
+    <remap from="robot_description" to="one_link/robot_description" />
+    <remap from="joint_states" to="one_link/joint_states" />
+  </node>
 
   <test test-name="test_one_link" pkg="robot_state_publisher" type="test_one_link" />
 </launch>

@@ -79,11 +79,12 @@ TEST_F(TestPublisher, test)
 
   ROS_INFO("Publishing joint state to robot state publisher");
   ros::NodeHandle n;
-  ros::Publisher js_pub = n.advertise<sensor_msgs::JointState>("joint_states", 100);
+  ros::Publisher js_pub = n.advertise<sensor_msgs::JointState>("test_one_link/joint_states", 100);
   sensor_msgs::JointState js_msg;
   for (unsigned int i=0; i<100; i++){
     js_msg.header.stamp = ros::Time::now();
     js_pub.publish(js_msg);
+    ros::spinOnce();
     ros::Duration(0.1).sleep();
   }
 
@@ -99,14 +100,14 @@ int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   ros::init(argc, argv, "test_one_link");
-  ros::NodeHandle node;
-  boost::thread ros_thread(boost::bind(&ros::spin));
+  //ros::NodeHandle node;
+  //boost::thread ros_thread(boost::bind(&ros::spin));
 
   g_argc = argc;
   g_argv = argv;
   int res = RUN_ALL_TESTS();
-  ros_thread.interrupt();
-  ros_thread.join();
+  //ros_thread.interrupt();
+  //ros_thread.join();
 
   return res;
 }

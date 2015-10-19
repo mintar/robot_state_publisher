@@ -82,10 +82,11 @@ TEST_F(TestPublisher, test)
 
   ROS_INFO("Publishing joint state to robot state publisher");
   ros::NodeHandle n;
-  ros::Publisher js_pub = n.advertise<sensor_msgs::JointState>("joint_states", 100);
+  ros::Publisher js_pub = n.advertise<sensor_msgs::JointState>("two_links_moving_joint/joint_states", 10);
   sensor_msgs::JointState js_msg;
   js_msg.name.push_back("joint1");
   js_msg.position.push_back(M_PI);
+  ros::Duration(1).sleep();
   for (unsigned int i=0; i<100; i++){
     js_msg.header.stamp = ros::Time::now();
     js_pub.publish(js_msg);
