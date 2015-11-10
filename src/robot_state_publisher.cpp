@@ -39,6 +39,8 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <tf2_kdl/tf2_kdl.h>
 
+#include <eigen_conversions/eigen_msg.h>
+
 
 using namespace std;
 using namespace ros;
@@ -81,12 +83,31 @@ namespace robot_state_publisher{
     }
   }
 
+  static std::string poseString(const Eigen::Affine3d& pose, const std::string& pfx = "")
+  {
+    std::ostringstream ss;
+    ss.precision(3);
+    for (int y=0;y<4;y++)
+    {
+      ss << pfx << std::fixed;
+      for (int x=0;x<4;x++)
+      {
+        ss << std::setw(8) << pose(y,x) << " ";
+      }
+      ss << std::endl;
+    }
+    return ss.str();
+  }
 
   // publish moving transforms
   void RobotStatePublisher::publishTransforms(const map<string, double>& joint_positions, const Time& time, const std::string& tf_prefix)
   {
     ROS_DEBUG("Publishing transforms for moving joints");
     std::vector<geometry_msgs::TransformStamped> tf_transforms;
+
+    static bool printed = false;
+    if (!printed)
+        std::cout << "----- dynamic transforms: " << std::endl;
 
     // loop over all joints
     for (map<string, double>::const_iterator jnt=joint_positions.begin(); jnt != joint_positions.end(); jnt++){
@@ -97,9 +118,21 @@ namespace robot_state_publisher{
         tf_transform.header.frame_id = tf::resolve(tf_prefix, seg->second.root);
         tf_transform.child_frame_id = tf::resolve(tf_prefix, seg->second.tip);
         tf_transforms.push_back(tf_transform);
+
+        if (!printed)
+        {
+            Eigen::Affine3d aff;
+            tf::transformMsgToEigen(tf_transform.transform, aff);
+            ROS_INFO("dynamic transform (%s => %s):\n%s",
+                     tf_transform.header.frame_id.c_str(), tf_transform.child_frame_id.c_str(),
+                     poseString(aff).c_str());
+
+            std::cout << tf_transform << std::endl;
+        }
       }
     }
     tf_broadcaster_.sendTransform(tf_transforms);
+    printed = true;
   }
 
   // publish fixed transforms
@@ -107,7 +140,10 @@ namespace robot_state_publisher{
   {
     ROS_DEBUG("Publishing transforms for fixed joints");
     std::vector<geometry_msgs::TransformStamped> tf_transforms;
-    geometry_msgs::TransformStamped tf_transform;
+
+    static bool printed = false;
+    if (!printed)
+        std::cout << "----- static transforms: " << std::endl;
 
     // loop over all fixed segments
     for (map<string, SegmentPair>::const_iterator seg=segments_fixed_.begin(); seg != segments_fixed_.end(); seg++){
@@ -116,12 +152,24 @@ namespace robot_state_publisher{
       tf_transform.header.frame_id = tf::resolve(tf_prefix, seg->second.root);
       tf_transform.child_frame_id = tf::resolve(tf_prefix, seg->second.tip);
       tf_transforms.push_back(tf_transform);
+
+      if (!printed)
+      {
+          Eigen::Affine3d aff;
+          tf::transformMsgToEigen(tf_transform.transform, aff);
+          ROS_INFO("static transform (%s => %s):\n%s",
+                   tf_transform.header.frame_id.c_str(), tf_transform.child_frame_id.c_str(),
+                   poseString(aff).c_str());
+
+          std::cout << tf_transform << std::endl;
+      }
     }
     if(use_tf_static){
       static_tf_broadcaster_.sendTransform(tf_transforms);
     }else{
       tf_broadcaster_.sendTransform(tf_transforms);
     }
+    printed = true;
   }
 
 }
